@@ -82,9 +82,10 @@ class MyHomePage extends StatelessWidget {
                 tag = await FlutterNfcKit.poll(
                     timeout: const Duration(seconds: 10),
                     iosMultipleTagMessage: "Multiple tags found!",
-                    iosAlertMessage: "Scan your tag");
+                    iosAlertMessage:
+                        "Отсканируйте NFC метку что бы начать работу");
               } on Exception catch (error) {
-                displayDialogOKCallBack(context, 'Error', '$error');
+                // displayDialogOKCallBack(context, 'Error', '$error');
               }
 
               if (tag != null) {
@@ -94,12 +95,13 @@ class MyHomePage extends StatelessWidget {
                     ndefRecords = await FlutterNfcKit.readNDEFRecords();
                   } on Exception catch (error) {
                     await FlutterNfcKit.finish(
-                        iosErrorMessage: 'Error, $error');
+                        iosErrorMessage: 'Ошибка, $error');
                   }
                   try {
                     ndefRecord = ndefRecords!.first;
                   } on Exception catch (error) {
-                    await FlutterNfcKit.finish(iosErrorMessage: "Try again");
+                    await FlutterNfcKit.finish(
+                        iosErrorMessage: "Попробуйте еще раз");
                   }
 
                   if (ndefRecord != null) {
@@ -111,7 +113,7 @@ class MyHomePage extends StatelessWidget {
                     final nfcId = split(decodedNdefRecord.toString(), '=').last;
                     final nfcData = await fetchNfcData(nfcId);
                     if (nfcData != null) {
-                      await FlutterNfcKit.finish(iosAlertMessage: "Done");
+                      await FlutterNfcKit.finish(iosAlertMessage: "Готово");
                       Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
@@ -120,17 +122,17 @@ class MyHomePage extends StatelessWidget {
                                   )));
                     } else {
                       await FlutterNfcKit.finish(
-                          iosErrorMessage: "Error loading data for this Tag");
+                          iosErrorMessage: "Ошибка загрузки данных");
                     }
                   } else {
                     await FlutterNfcKit.finish(
-                        iosErrorMessage: "Can't get id of NFCTag");
+                        iosErrorMessage: "Невозможно получить id из NFC метки");
                   }
                 }
               }
             } else {
-              displayDialogOKCallBack(context, "Error",
-                  "Your device is not supporting NFC :(\n we are want support QR codes later.");
+              displayDialogOKCallBack(context, "Ошибка",
+                  "Ваше устройство не поддерживает работу с NFC :(");
             }
           },
         ),

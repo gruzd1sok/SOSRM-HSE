@@ -124,13 +124,15 @@ class NfcData {
   final int roomNum;
   final String items;
   final String name;
+  final String image;
 
   const NfcData(
       {required this.createdAt,
       required this.roomNum,
       required this.items,
       required this.id,
-      required this.name});
+      required this.name,
+      required this.image});
 
   factory NfcData.fromJson(Map<String, dynamic> json) {
     return NfcData(
@@ -138,7 +140,8 @@ class NfcData {
         name: json['Name'],
         roomNum: json['RoomNum'],
         items: json['Items'],
-        createdAt: json['created_at']);
+        createdAt: json['created_at'],
+        image: json['Image']);
   }
 
   Map<String, dynamic> toJson() => {
@@ -146,6 +149,7 @@ class NfcData {
         'created_at': createdAt,
         'RoomNum': roomNum,
         "Items": items,
-        "Name": name
+        "Name": name,
+        "Image": image,
       };
 }

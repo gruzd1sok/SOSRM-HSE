@@ -4,6 +4,7 @@ import 'package:cross_file_image/cross_file_image.dart';
 import 'package:my_app/pages/home_page.dart';
 import 'package:my_app/pages/home_page_data.dart';
 import 'network.dart';
+import '../widgets/detail-screen.dart';
 
 int itemCount = 5;
 List<bool> selected = [];
@@ -21,6 +22,57 @@ class _InstrumentsPageState extends State<InstrumentsPage> {
   ImagePicker picker = ImagePicker();
   var text = whatsWrongController.text;
   XFile? photo;
+
+  Future<void> goToHomePageData() async {
+    String mark = star5
+        ? "5"
+        : star4
+            ? "4"
+            : star3
+                ? "3"
+                : star2
+                    ? "2"
+                    : star1
+                        ? "1"
+                        : "0";
+    final success = await takeNfcInWork(widget.nfcData.id, mark);
+    if (success == true) {
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  MyHomePageWithData(nfcData: widget.nfcData)));
+    } else {
+      print("error");
+    }
+  }
+
+  Future<void> isReadyToStartWork(BuildContext context) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Начало работы',
+          ),
+          content: Text("Вы выбрали ${widget.nfcData.name}\n\n"),
+          actions: <Widget>[
+            TextButton(
+                child: new Text("Начать работу"),
+                onPressed: () {
+                  goToHomePageData();
+                }),
+            TextButton(
+              child: new Text("Назад"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   initState() {
@@ -56,10 +108,20 @@ class _InstrumentsPageState extends State<InstrumentsPage> {
       body: Center(
         child: ListView(children: [
           Container(
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (_) {
+                  return DetailScreen(
+                      photo: Image.network(widget.nfcData.image));
+                }));
+              },
+              child: Container(child: Image.network(widget.nfcData.image)),
+            ),
+          ),
+          Container(
             padding: const EdgeInsets.only(left: 30, top: 50, right: 30),
             child: Text(
-              'Вы находитесь в аудитории: ${widget.nfcData.roomNum.toString()}\nОтсканировали NFС: ${widget.nfcData.name}\nКомплект содержит: ${widget.nfcData.items}',
-              textAlign: TextAlign.left,
+              '${widget.nfcData.name}\n\nАудитория: ${widget.nfcData.roomNum.toString()}\n\nКомплект содержит:',
               style: const TextStyle(
                   color: Colors.black,
                   fontStyle: FontStyle.normal,
@@ -68,8 +130,19 @@ class _InstrumentsPageState extends State<InstrumentsPage> {
           ),
           Container(
             padding: const EdgeInsets.only(left: 30, top: 10, right: 30),
+            child: Text(
+              widget.nfcData.items,
+              style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                  fontStyle: FontStyle.normal,
+                  fontSize: 15.0),
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.only(left: 30, top: 10, right: 30),
             child: const Text(
-              "Внимательно осмотрите содержимое коробки, все ли соответствует комплектации.\n\nПоставьте оценку содержимому:",
+              "Внимательно осмотрите содержимое комплекта, все ли соответствует комплектации.\n\nОцените качество содержимого:",
               textAlign: TextAlign.left,
               style: TextStyle(
                   color: Colors.black,
@@ -235,27 +308,7 @@ class _InstrumentsPageState extends State<InstrumentsPage> {
                   color: Colors.white,
                 ),
                 onPressed: () async {
-                  String mark = star5
-                      ? "5"
-                      : star4
-                          ? "4"
-                          : star3
-                              ? "3"
-                              : star2
-                                  ? "2"
-                                  : star1
-                                      ? "1"
-                                      : "0";
-                  final success = await takeNfcInWork(widget.nfcData.id, mark);
-                  if (success == true) {
-                    Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                MyHomePageWithData(nfcData: widget.nfcData)));
-                  } else {
-                    print("error");
-                  }
+                  isReadyToStartWork(context);
                 },
                 label: const Text(
                   "Взять",
@@ -267,7 +320,7 @@ class _InstrumentsPageState extends State<InstrumentsPage> {
               )),
           SizedBox(height: 15),
           Visibility(
-            visible: star2 == true && star3 == false,
+            visible: (star1 == true || star2 == true) && star3 == false,
             child: Container(
                 padding: EdgeInsets.only(left: 40, right: 40),
                 height: 43,
@@ -291,32 +344,6 @@ class _InstrumentsPageState extends State<InstrumentsPage> {
           )
         ]),
       ),
-    );
-  }
-}
-
-class DetailScreen extends StatelessWidget {
-  final Image photo;
-
-  const DetailScreen({super.key, required this.photo});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        title: const Text(
-          "Просмотр фото",
-          style: TextStyle(
-              color: Colors.white, fontStyle: FontStyle.normal, fontSize: 25.0),
-        ),
-        backgroundColor: Colors.orange,
-      ),
-      body: InteractiveViewer(
-          maxScale: 8,
-          child: Center(
-            child: Container(child: photo),
-          )),
     );
   }
 }
