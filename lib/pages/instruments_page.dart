@@ -38,7 +38,6 @@ class _InstrumentsPageState extends State<InstrumentsPage> {
     final success =
         await takeNfcInWork(widget.nfcData.id, mark, whatsWrongController.text);
     if (success == true) {
-      whatsWrongController.text = "";
       Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -100,7 +99,6 @@ class _InstrumentsPageState extends State<InstrumentsPage> {
                   final success = await cancelNfcInWork(
                       widget.nfcData.id, mark, whatsWrongController.text);
                   if (success == true) {
-                    whatsWrongController.text = "";
                     Navigator.pushReplacement(context,
                         MaterialPageRoute(builder: (context) => MyHomePage()));
                   } else {
@@ -112,7 +110,6 @@ class _InstrumentsPageState extends State<InstrumentsPage> {
             TextButton(
               child: new Text("Все в порядке, выйти"),
               onPressed: () {
-                whatsWrongController.text = "";
                 Navigator.pushReplacement(context,
                     MaterialPageRoute(builder: (context) => MyHomePage()));
               },
@@ -136,7 +133,6 @@ class _InstrumentsPageState extends State<InstrumentsPage> {
             TextButton(
                 child: new Text("Начать работу"),
                 onPressed: () {
-                  whatsWrongController.text = "";
                   goToHomePageData();
                 }),
             TextButton(
