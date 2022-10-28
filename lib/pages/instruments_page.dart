@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cross_file_image/cross_file_image.dart';
+import 'package:my_app/constants.dart';
 import 'package:my_app/pages/home_page.dart';
 import 'package:my_app/pages/home_page_data.dart';
 import 'network.dart';
@@ -20,7 +21,6 @@ class InstrumentsPage extends StatefulWidget {
 
 class _InstrumentsPageState extends State<InstrumentsPage> {
   ImagePicker picker = ImagePicker();
-  var text = whatsWrongController.text;
   XFile? photo;
 
   Future<void> goToHomePageData() async {
@@ -35,8 +35,10 @@ class _InstrumentsPageState extends State<InstrumentsPage> {
                     : star1
                         ? "1"
                         : "0";
-    final success = await takeNfcInWork(widget.nfcData.id, mark);
+    final success =
+        await takeNfcInWork(widget.nfcData.id, mark, whatsWrongController.text);
     if (success == true) {
+      whatsWrongController.text = "";
       Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -45,6 +47,80 @@ class _InstrumentsPageState extends State<InstrumentsPage> {
     } else {
       print("error");
     }
+  }
+
+  static void displayDialogOKCallBack(
+      BuildContext context, String title, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            title,
+          ),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              child: new Text("Close"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void isBroken(BuildContext context) {
+    String mark = star5
+        ? "5"
+        : star4
+            ? "4"
+            : star3
+                ? "3"
+                : star2
+                    ? "2"
+                    : star1
+                        ? "1"
+                        : "0";
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Отменить',
+          ),
+          content: Text(
+              "Вы хотите выйти или что-то с набором? Если проблема в наборе пожалуйста оставьте комментарий с фото и отмените кнопкой Набор неисправен"),
+          actions: <Widget>[
+            TextButton(
+                child: new Text("Набор неисправен"),
+                onPressed: () async {
+                  final success = await cancelNfcInWork(
+                      widget.nfcData.id, mark, whatsWrongController.text);
+                  if (success == true) {
+                    whatsWrongController.text = "";
+                    Navigator.pushReplacement(context,
+                        MaterialPageRoute(builder: (context) => MyHomePage()));
+                  } else {
+                    Navigator.pop(context);
+                    displayDialogOKCallBack(
+                        context, 'Ошибка', 'Попробуйте ещё раз');
+                  }
+                }),
+            TextButton(
+              child: new Text("Все в порядке, выйти"),
+              onPressed: () {
+                whatsWrongController.text = "";
+                Navigator.pushReplacement(context,
+                    MaterialPageRoute(builder: (context) => MyHomePage()));
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future<void> isReadyToStartWork(BuildContext context) async {
@@ -60,6 +136,7 @@ class _InstrumentsPageState extends State<InstrumentsPage> {
             TextButton(
                 child: new Text("Начать работу"),
                 onPressed: () {
+                  whatsWrongController.text = "";
                   goToHomePageData();
                 }),
             TextButton(
@@ -96,7 +173,7 @@ class _InstrumentsPageState extends State<InstrumentsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         title: const Text(
           "Начало работы",
@@ -319,29 +396,25 @@ class _InstrumentsPageState extends State<InstrumentsPage> {
                 ),
               )),
           SizedBox(height: 15),
-          Visibility(
-            visible: (star1 == true || star2 == true) && star3 == false,
-            child: Container(
-                padding: EdgeInsets.only(left: 40, right: 40),
-                height: 43,
-                child: ElevatedButton.icon(
-                  icon: const Icon(
-                    Icons.remove_circle,
-                    color: Colors.white,
-                  ),
-                  onPressed: () async {
-                    Navigator.pushReplacement(context,
-                        MaterialPageRoute(builder: (context) => MyHomePage()));
-                  },
-                  label: const Text(
-                    "Отказаться",
-                    style: TextStyle(fontSize: 16, color: Colors.white),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                  ),
-                )),
-          )
+          Container(
+              padding: EdgeInsets.only(left: 40, right: 40),
+              height: 43,
+              child: ElevatedButton.icon(
+                icon: const Icon(
+                  Icons.remove_circle,
+                  color: Colors.white,
+                ),
+                onPressed: () async {
+                  isBroken(context);
+                },
+                label: const Text(
+                  "Отказаться",
+                  style: TextStyle(fontSize: 16, color: Colors.white),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                ),
+              )),
         ]),
       ),
     );

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/pages/login_page.dart';
 import '../widgets/nav-drawer.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '/constants.dart';
+import 'login_page.dart';
 
 class AccountPage extends StatefulWidget {
   NavDrawer navDrawer;
@@ -67,7 +69,7 @@ class _AccountPageState extends State<AccountPage> {
     try {
       await supabase.from('profiles').upsert(updates);
       if (mounted) {
-        context.showSnackBar(message: 'Обновить данные!');
+        context.showSnackBar(message: 'Данные обновлены!');
       }
     } on PostgrestException catch (error) {
       context.showErrorSnackBar(message: error.message);
@@ -88,7 +90,10 @@ class _AccountPageState extends State<AccountPage> {
       context.showErrorSnackBar(message: 'Unexpected error occured');
     }
     if (mounted) {
-      Navigator.of(context).pushReplacementNamed('/');
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => LoginPage()),
+          (route) => false);
     }
   }
 

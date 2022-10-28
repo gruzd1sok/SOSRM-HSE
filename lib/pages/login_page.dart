@@ -19,30 +19,54 @@ class _LoginPageState extends State<LoginPage> {
   late final TextEditingController _emailController;
   late final StreamSubscription<AuthState> _authStateSubscription;
 
-  Future<void> _signIn() async {
+  isValid(String text) {
     setState(() {
       _isLoading = true;
     });
-    try {
-      final response = await supabase.auth.signInWithOtp(
-        email: _emailController.text,
-        emailRedirectTo:
-            kIsWeb ? null : 'io.supabase.flutterquickstart://login-callback/',
-      );
-      if (mounted) {
-        context.showSnackBar(
-            message: 'Проверь почту, там сейчас будет ссылка!');
-        _emailController.clear();
-      }
-    } on AuthException catch (error) {
-      context.showErrorSnackBar(message: error.message);
-    } catch (error) {
-      context.showErrorSnackBar(message: 'Unexpected error occured');
+    final valid = _emailController.text.toLowerCase().endsWith('miem.hse.ru');
+    if (valid == true) {
+      setState(() {
+        _isLoading = false;
+      });
+      return true;
+    } else {
+      _emailController.clear();
+      setState(() {
+        _isLoading = false;
+      });
+      return false;
     }
+  }
 
-    setState(() {
-      _isLoading = false;
-    });
+  Future<void> _signIn() async {
+    if (isValid(_emailController.text)) {
+      setState(() {
+        _isLoading = true;
+      });
+      try {
+        final response = await supabase.auth.signInWithOtp(
+          email: _emailController.text,
+          emailRedirectTo:
+              kIsWeb ? null : 'io.supabase.flutterquickstart://login-callback/',
+        );
+        if (mounted) {
+          context.showSnackBar(
+              message: 'Проверь почту, там сейчас будет ссылка!');
+          _emailController.clear();
+        }
+      } on AuthException catch (error) {
+        context.showErrorSnackBar(message: error.message);
+      } catch (error) {
+        context.showErrorSnackBar(message: 'Unexpected error occured');
+      }
+
+      setState(() {
+        _isLoading = false;
+      });
+    } else {
+      context.showErrorSnackBar(
+          message: 'Необходима почта домена @miem.hse.ru');
+    }
   }
 
   @override
@@ -80,7 +104,8 @@ class _LoginPageState extends State<LoginPage> {
       body: ListView(
         padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
         children: [
-          const Text('Введите почту и зайдите по Magic Link'),
+          const Text(
+              'Введите почту с доменом @miem.hse.ru и зайдите по Magic Link'),
           const SizedBox(height: 18),
           TextFormField(
             controller: _emailController,

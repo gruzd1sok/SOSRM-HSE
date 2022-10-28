@@ -24,16 +24,10 @@ Future<NfcData?> fetchActiveNfc() async {
   var res = await http.post(reqUri,
       body: jsonEncode(body), headers: header, encoding: encoding);
 
-  print(res.body);
-
   if (res.statusCode == 200) {
     if (res.body != 'null') {
-      print("good");
       var decode = jsonDecode(res.body);
-      print('decode $decode');
       return NfcData.fromJson(decode);
-    } else {
-      print('body is null ${res.body}');
     }
   }
 }
@@ -53,16 +47,13 @@ Future<NfcData?> fetchNfcData(String nfc_id) async {
   var res = await http.post(reqUri,
       body: jsonEncode(body), headers: header, encoding: encoding);
 
-  print(res.body);
-
   if (res.statusCode == 200) {
     var decode = jsonDecode(res.body);
-    print('decode $decode');
     return NfcData.fromJson(decode);
   }
 }
 
-Future<bool> takeNfcInWork(String nfcId, String mark) async {
+Future<bool> takeNfcInWork(String nfcId, String mark, String comment) async {
   final reqUri = Uri.parse(
       'https://pvhvfpgtjpkdftxuqbpg.supabase.co/rest/v1/rpc/TakeNFCInWork');
 
@@ -75,16 +66,42 @@ Future<bool> takeNfcInWork(String nfcId, String mark) async {
   Map<String, dynamic> body = {
     "mark": mark,
     "nfc_id": nfcId,
-    "profile_id": userId
+    "profile_id": userId,
+    "comment": comment,
   };
 
   var res = await http.post(reqUri,
       body: jsonEncode(body), headers: header, encoding: encoding);
 
-  print(res.body);
+  if (res.statusCode == 200 || res.statusCode == 204) {
+    return true;
+  } else {
+    print(res.statusCode);
+    return false;
+  }
+}
+
+Future<bool> cancelNfcInWork(String nfcId, String mark, String comment) async {
+  final reqUri = Uri.parse(
+      'https://pvhvfpgtjpkdftxuqbpg.supabase.co/rest/v1/rpc/CancelNFCInWork');
+
+  final Map<String, String> header = {
+    'Content-type': 'application/json',
+    'ApiKey': check,
+    'Authorization': 'Bearer $check',
+  };
+
+  Map<String, dynamic> body = {
+    "mark": mark,
+    "nfc_id": nfcId,
+    "profile_id": userId,
+    "comment": comment,
+  };
+
+  var res = await http.post(reqUri,
+      body: jsonEncode(body), headers: header, encoding: encoding);
 
   if (res.statusCode == 200 || res.statusCode == 204) {
-    print(res.body);
     return true;
   } else {
     print(res.statusCode);
@@ -107,10 +124,7 @@ Future<bool> stopNfcInWork(String nfcId) async {
   var res = await http.post(reqUri,
       body: jsonEncode(body), headers: header, encoding: encoding);
 
-  print(res.body);
-
   if (res.statusCode == 200 || res.statusCode == 204) {
-    print(res.body);
     return true;
   } else {
     print(res.statusCode);

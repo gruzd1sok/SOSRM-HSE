@@ -42,7 +42,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
       _groupController.text = (data['group'] ?? '') as String;
       _phoneController.text = (data['phone'] ?? '') as String;
     } on PostgrestException catch (error) {
-      context.showErrorSnackBar(message: error.message);
+      // context.showErrorSnackBar(message: error.message);
     } catch (error) {
       context.showErrorSnackBar(message: 'Unexpected exception occured');
     }
