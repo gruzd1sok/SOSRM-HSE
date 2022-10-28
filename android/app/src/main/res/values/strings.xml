@@ -1,0 +1,3 @@
+<resources>
+    <string name="flutter_shared_pref_name">resource_name</string>
+</resources>
