@@ -51,7 +51,7 @@ class _LoginPageState extends State<LoginPage> {
         );
         if (mounted) {
           context.showSnackBar(
-              message: 'Проверь почту, там сейчас будет ссылка!');
+              message: 'Проверьте почту, там сейчас будет ссылка!');
           _emailController.clear();
         }
       } on AuthException catch (error) {
