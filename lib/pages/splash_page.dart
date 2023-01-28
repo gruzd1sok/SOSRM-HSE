@@ -39,7 +39,9 @@ class _SplashPageState extends State<SplashPage> {
     if (session != null) {
       final screen = await openScreen();
       Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => screen));
+        context,
+        MaterialPageRoute(builder: (context) => screen),
+      );
     } else {
       Navigator.of(context).pushReplacementNamed('/login');
     }

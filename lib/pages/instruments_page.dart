@@ -91,10 +91,10 @@ class _InstrumentsPageState extends State<InstrumentsPage> {
             'Отменить',
           ),
           content: Text(
-              "Вы хотите выйти или что-то с набором? Если проблема в наборе пожалуйста оставьте комментарий с фото и отмените кнопкой Набор неисправен"),
+              "Вы хотите занять другое место? Если что-то не так с рабочим местом, пожалуйста оставьте комментарий с фото и отмените кнопкой Проблема на рабочем месте"),
           actions: <Widget>[
             TextButton(
-                child: new Text("Набор неисправен"),
+                child: new Text("Проблема на рабочем месте"),
                 onPressed: () async {
                   final success = await cancelNfcInWork(
                       widget.nfcData.id, mark, whatsWrongController.text);
@@ -128,7 +128,8 @@ class _InstrumentsPageState extends State<InstrumentsPage> {
           title: Text(
             'Начало работы',
           ),
-          content: Text("Вы выбрали ${widget.nfcData.name}\n\n"),
+          content: Text(
+              "Вы выбрали рабочее место № ${widget.nfcData.roomNum} в ${widget.nfcData.name}\n\n"),
           actions: <Widget>[
             TextButton(
                 child: new Text("Начать работу"),
@@ -194,7 +195,7 @@ class _InstrumentsPageState extends State<InstrumentsPage> {
           Container(
             padding: const EdgeInsets.only(left: 30, top: 50, right: 30),
             child: Text(
-              '${widget.nfcData.name}\n\nАудитория: ${widget.nfcData.roomNum.toString()}\n\nКомплект содержит:',
+              '${widget.nfcData.name}\n\nРабочее место №: ${widget.nfcData.roomNum.toString()}',
               style: const TextStyle(
                   color: Colors.black,
                   fontStyle: FontStyle.normal,
@@ -204,7 +205,7 @@ class _InstrumentsPageState extends State<InstrumentsPage> {
           Container(
             padding: const EdgeInsets.only(left: 30, top: 10, right: 30),
             child: Text(
-              widget.nfcData.items,
+              'Есть возможность взять в работу: \n${widget.nfcData.items}',
               style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Colors.black,
@@ -215,7 +216,7 @@ class _InstrumentsPageState extends State<InstrumentsPage> {
           Container(
             padding: const EdgeInsets.only(left: 30, top: 10, right: 30),
             child: const Text(
-              "Внимательно осмотрите содержимое комплекта, все ли соответствует комплектации.\n\nОцените качество содержимого:",
+              "Внимательно осмотрите рабочее место.\nОцените качество:",
               textAlign: TextAlign.left,
               style: TextStyle(
                   color: Colors.black,
@@ -384,7 +385,7 @@ class _InstrumentsPageState extends State<InstrumentsPage> {
                   isReadyToStartWork(context);
                 },
                 label: const Text(
-                  "Взять",
+                  "Начать работу",
                   style: TextStyle(fontSize: 16, color: Colors.white),
                 ),
                 style: ElevatedButton.styleFrom(

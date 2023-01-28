@@ -23,7 +23,7 @@ class _LoginPageState extends State<LoginPage> {
     setState(() {
       _isLoading = true;
     });
-    final valid = _emailController.text.toLowerCase().endsWith('miem.hse.ru');
+    final valid = true;
     if (valid == true) {
       setState(() {
         _isLoading = false;
@@ -65,7 +65,7 @@ class _LoginPageState extends State<LoginPage> {
       });
     } else {
       context.showErrorSnackBar(
-          message: 'Необходима почта домена @miem.hse.ru');
+          message: 'Проверьте корректность введения почты');
     }
   }
 
@@ -104,8 +104,7 @@ class _LoginPageState extends State<LoginPage> {
       body: ListView(
         padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
         children: [
-          const Text(
-              'Введите почту с доменом @miem.hse.ru и зайдите по Magic Link'),
+          const Text('Введите почту с и зайдите через Magic Link'),
           const SizedBox(height: 18),
           TextFormField(
             controller: _emailController,

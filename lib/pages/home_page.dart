@@ -6,6 +6,7 @@ import '../widgets/nav-drawer.dart';
 import 'package:flutter_nfc_kit/flutter_nfc_kit.dart';
 import 'package:ndef/ndef.dart' as ndef;
 import 'package:native_shared_preferences/native_shared_preferences.dart';
+import 'qr_scanner_page.dart';
 
 class MyHomePage extends StatelessWidget {
   const MyHomePage({super.key});
@@ -57,13 +58,16 @@ class MyHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const IconData qr_code_scanner_rounded =
+        IconData(0xf00cc, fontFamily: 'MaterialIcons');
+
     return Scaffold(
       drawer: NavDrawer(
         nfcData: null,
       ),
       appBar: AppBar(
         title: const Text(
-          "NFC APP MIEM",
+          "SOSRM-HSE",
           style: TextStyle(
               color: Colors.white, fontStyle: FontStyle.normal, fontSize: 25.0),
         ),
@@ -115,11 +119,13 @@ class MyHomePage extends StatelessWidget {
                     if (nfcData != null) {
                       await FlutterNfcKit.finish(iosAlertMessage: "Готово");
                       Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => InstrumentsPage(
-                                    nfcData: nfcData!,
-                                  )));
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => InstrumentsPage(
+                            nfcData: nfcData!,
+                          ),
+                        ),
+                      );
                     } else {
                       await FlutterNfcKit.finish(
                           iosErrorMessage: "Ошибка загрузки данных");
@@ -136,6 +142,16 @@ class MyHomePage extends StatelessWidget {
             }
           },
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        elevation: 0,
+        backgroundColor: Colors.orange,
+        onPressed: () {
+          Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => const QRViewExample(),
+          ));
+        },
+        child: Icon(qr_code_scanner_rounded),
       ),
     );
   }

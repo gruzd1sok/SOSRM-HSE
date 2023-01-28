@@ -35,7 +35,6 @@ class _AccountPageState extends State<AccountPage> {
           .single() as Map;
       _nameController.text = (data['name'] ?? '') as String;
       _surnameController.text = (data['surname'] ?? '') as String;
-      _groupController.text = (data['group'] ?? '') as String;
       _phoneController.text = (data['phone'] ?? '') as String;
     } on PostgrestException catch (error) {
       context.showErrorSnackBar(message: error.message);
@@ -62,7 +61,6 @@ class _AccountPageState extends State<AccountPage> {
       'id': user!.id,
       'name': name,
       'surname': surname,
-      'group': group,
       'phone': phone,
       'updated_at': DateTime.now().toIso8601String(),
     };
@@ -135,11 +133,6 @@ class _AccountPageState extends State<AccountPage> {
           TextFormField(
             controller: _surnameController,
             decoration: const InputDecoration(labelText: 'Фамилия'),
-          ),
-          const SizedBox(height: 18),
-          TextFormField(
-            controller: _groupController,
-            decoration: const InputDecoration(labelText: 'Группа'),
           ),
           const SizedBox(height: 18),
           TextFormField(

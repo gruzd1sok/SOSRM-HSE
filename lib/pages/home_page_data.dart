@@ -6,6 +6,7 @@ import 'package:flutter_nfc_kit/flutter_nfc_kit.dart';
 import 'package:ndef/ndef.dart' as ndef;
 import 'network.dart';
 import '../widgets/detail-screen.dart';
+import 'qr_scanner_page.dart';
 
 List<String> split(String string, String separator, {int max = 0}) {
   List<String> result = [];
@@ -82,8 +83,6 @@ class MyHomePageWithData extends StatelessWidget {
                       iosErrorMessage: "Ошибка, Попробуйте еще раз");
                 }
               } else {
-                print('loadedNfcData - ${loadedNfcData.id.toString()}');
-                print('nfcData - ${nfcData.id.toString()}');
                 await FlutterNfcKit.finish(
                     iosErrorMessage: "Ошибка, Неправильный тэг");
               }
@@ -112,17 +111,47 @@ class MyHomePageWithData extends StatelessWidget {
             'Вы пытаетесь завершить работу',
           ),
           content: Text(
-              "Проверьте содержимое набора, все должно быть на месте, а так же в хорошем состоянии.\n\nДля завершения работы необходимо отсканировать NFC метку."),
+              "Проверьте рабочее место, все должно быть на месте, а так же в хорошем состоянии."),
           actions: <Widget>[
             TextButton(
                 child: new Text("Завершить работу"),
                 onPressed: () {
-                  returnNfc(context);
+                  QRorNFC(context);
                 }),
             TextButton(
               child: new Text("Отменить"),
               onPressed: () {
                 Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> QRorNFC(BuildContext context) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Выберите способ завершения работы'),
+          content: const Text(
+              "Доступно завершение через NFC метку или QR код, находящимся на вашем рабочем месте"),
+          actions: <Widget>[
+            TextButton(
+                child: const Text("Завершить работу через NFC"),
+                onPressed: () {
+                  returnNfc(context);
+                }),
+            TextButton(
+              child: const Text("Завершить работу через QR"),
+              onPressed: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => const QRViewExample(
+                    isEnd: true,
+                  ),
+                ));
               },
             ),
           ],
@@ -162,7 +191,7 @@ class MyHomePageWithData extends StatelessWidget {
       ),
       appBar: AppBar(
         title: const Text(
-          "NFC APP MIEM",
+          "SOSRM-HSE",
           style: TextStyle(
               color: Colors.white, fontStyle: FontStyle.normal, fontSize: 25.0),
         ),
@@ -171,17 +200,6 @@ class MyHomePageWithData extends StatelessWidget {
       body: Center(
           child: ListView(
         children: [
-          Container(
-            padding: const EdgeInsets.only(top: 30),
-            child: const Text(
-              'В работе сейчас находится:',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                  color: Colors.black,
-                  fontStyle: FontStyle.normal,
-                  fontSize: 25.0),
-            ),
-          ),
           Container(
             child: GestureDetector(
               onTap: () {
@@ -193,9 +211,9 @@ class MyHomePageWithData extends StatelessWidget {
             ),
           ),
           Container(
-            padding: const EdgeInsets.only(left: 30, top: 50, right: 30),
+            padding: const EdgeInsets.only(left: 30, top: 20, right: 30),
             child: Text(
-              '${nfcData.name}\n\nАудитория: ${nfcData.roomNum.toString()}\n\nКомплект должен содержать:',
+              '${nfcData.name}\n\Рабочее место №: ${nfcData.roomNum.toString()}\n\nДоступно для взятия в работу:',
               style: const TextStyle(
                   color: Colors.black,
                   fontStyle: FontStyle.normal,
@@ -211,6 +229,16 @@ class MyHomePageWithData extends StatelessWidget {
                   color: Colors.black,
                   fontStyle: FontStyle.normal,
                   fontSize: 15.0),
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.only(left: 30, top: 20, right: 30),
+            child: Text(
+              'Узнать подробнее или взять можно у администратора на комьюнити-баре',
+              style: const TextStyle(
+                  color: Colors.black,
+                  fontStyle: FontStyle.normal,
+                  fontSize: 20.0),
             ),
           ),
           const SizedBox(height: 15),

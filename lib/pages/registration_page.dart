@@ -60,7 +60,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
       if (isNewUser == 'false') {
         _nameController.text = (data['name'] ?? '') as String;
         _surnameController.text = (data['surname'] ?? '') as String;
-        _groupController.text = (data['group'] ?? '') as String;
         _phoneController.text = (data['phone'] ?? '') as String;
       } else {
         Navigator.pushReplacement(
@@ -80,7 +79,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
     });
     final name = _nameController.text;
     final surname = _surnameController.text;
-    final group = _groupController.text;
     final phone = _phoneController.text;
     final user = supabase.auth.currentUser;
     _saveUserId(user!.id);
@@ -88,7 +86,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
       'id': user.id,
       'name': name,
       'surname': surname,
-      'group': group,
       'phone': phone,
       'updated_at': DateTime.now().toIso8601String(),
       'isNewUser': false,
@@ -165,11 +162,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 TextFormField(
                   controller: _surnameController,
                   decoration: const InputDecoration(labelText: 'Фамилия'),
-                ),
-                const SizedBox(height: 18),
-                TextFormField(
-                  controller: _groupController,
-                  decoration: const InputDecoration(labelText: 'Группа'),
                 ),
                 const SizedBox(height: 18),
                 TextFormField(
