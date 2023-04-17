@@ -1,19 +1,18 @@
+
 import 'package:flutter/material.dart';
-import 'package:my_app/pages/login_page.dart';
-import '../widgets/nav-drawer.dart';
+import 'package:my_app/design_system/palette.dart';
+import 'package:my_app/ui_components/custom_app_bar.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '/constants.dart';
-import 'login_page.dart';
 
-class AccountPage extends StatefulWidget {
-  NavDrawer navDrawer;
-  AccountPage({super.key, required this.navDrawer});
+class AccountScreen extends StatefulWidget {
+  const AccountScreen({super.key});
 
   @override
-  _AccountPageState createState() => _AccountPageState();
+  _AccountScreenState createState() => _AccountScreenState();
 }
 
-class _AccountPageState extends State<AccountPage> {
+class _AccountScreenState extends State<AccountScreen> {
   final _nameController = TextEditingController();
   final _surnameController = TextEditingController();
   final _groupController = TextEditingController();
@@ -79,22 +78,6 @@ class _AccountPageState extends State<AccountPage> {
     });
   }
 
-  Future<void> _signOut() async {
-    try {
-      await supabase.auth.signOut();
-    } on AuthException catch (error) {
-      context.showErrorSnackBar(message: error.message);
-    } catch (error) {
-      context.showErrorSnackBar(message: 'Unexpected error occured');
-    }
-    if (mounted) {
-      Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => LoginPage()),
-          (route) => false);
-    }
-  }
-
   @override
   void initState() {
     super.initState();
@@ -113,15 +96,7 @@ class _AccountPageState extends State<AccountPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: widget.navDrawer,
-      appBar: AppBar(
-        title: const Text(
-          "Профиль",
-          style: TextStyle(
-              color: Colors.white, fontStyle: FontStyle.normal, fontSize: 25.0),
-        ),
-        backgroundColor: Colors.orange,
-      ),
+      appBar: CustomAppBar(title: 'Профиль'),
       body: ListView(
         padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
         children: [
@@ -142,10 +117,10 @@ class _AccountPageState extends State<AccountPage> {
           const SizedBox(height: 18),
           ElevatedButton(
             onPressed: _updateProfile,
+            style:
+                ElevatedButton.styleFrom(backgroundColor: Palette.mainAppColor),
             child: Text(_loading ? 'Сохранение...' : 'Обновить данные'),
           ),
-          const SizedBox(height: 18),
-          TextButton(onPressed: _signOut, child: const Text('Выйти')),
         ],
       ),
     );

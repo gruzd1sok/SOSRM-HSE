@@ -1,12 +1,13 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:my_app/pages/home_page.dart';
-import '../widgets/nav-drawer.dart';
+import 'package:my_app/constants.dart';
+import 'package:my_app/pages/instruments_page.dart';
+import 'package:my_app/screens/instruments_detail_screen.dart';
+import 'package:my_app/screens/tab_bar_screen.dart';
 import 'package:flutter_nfc_kit/flutter_nfc_kit.dart';
 import 'package:ndef/ndef.dart' as ndef;
-import 'network.dart';
-import '../widgets/detail-screen.dart';
-import 'qr_scanner_page.dart';
+import 'package:safe_device/safe_device.dart';
+import '../network_layer/network.dart';
+import '../widgets/detail_screen.dart';
 
 List<String> split(String string, String separator, {int max = 0}) {
   List<String> result = [];
@@ -30,75 +31,105 @@ List<String> split(String string, String separator, {int max = 0}) {
   return result;
 }
 
-class MyHomePageWithData extends StatelessWidget {
+class HomePageWithData extends StatelessWidget {
+  HomePageWithData({
+    super.key,
+    required this.nfcData,
+  });
+
   NfcData nfcData;
-  MyHomePageWithData({super.key, required this.nfcData});
 
   Future<void> returnNfc(BuildContext context) async {
-    var availability = FlutterNfcKit.nfcAvailability;
-    if (availability != FlutterNfcKit.nfcAvailability) {
-      NFCTag? tag;
-      ndef.NDEFRecord? ndefRecord;
-      try {
-        tag = await FlutterNfcKit.poll(
-            timeout: const Duration(seconds: 10),
-            iosMultipleTagMessage: "Multiple tags found!",
-            iosAlertMessage: "Поднесите NFC метку");
-      } on Exception catch (error) {
-        // displayDialogOKCallBack(context, 'Error', '$error');
+    final isRealDevice = await _isRealDevice();
+    if (!isRealDevice) {
+      final success = await stopNfcInWork(nfcData.id);
+      if (success == true) {
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => TabBarScreen(null)),
+            (route) => false);
+        context.showSnackBar(message: 'Вы успешно завершили работу');
+      } else {
+        context.showErrorSnackBar(message: 'Ошибка, попробуйте ещё раз');
       }
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => TabBarScreen(null),
+        ),
+      );
+    } else {
+      var availability = FlutterNfcKit.nfcAvailability;
+      if (availability != FlutterNfcKit.nfcAvailability) {
+        NFCTag? tag;
+        ndef.NDEFRecord? ndefRecord;
+        try {
+          tag = await FlutterNfcKit.poll(
+              timeout: const Duration(seconds: 10),
+              iosMultipleTagMessage: "Multiple tags found!",
+              iosAlertMessage: "Поднесите NFC метку");
+        } on Exception catch (error) {
+          // displayDialogOKCallBack(context, 'Error', '$error');
+        }
 
-      if (tag != null) {
-        if (tag.type == NFCTagType.mifare_ultralight) {
-          List<ndef.NDEFRecord>? ndefRecords;
-          try {
-            ndefRecords = await FlutterNfcKit.readNDEFRecords();
-          } on Exception catch (error) {
-            await FlutterNfcKit.finish(iosErrorMessage: 'Error, $error');
-          }
-          try {
-            ndefRecord = ndefRecords!.first;
-          } on Exception catch (error) {
-            await FlutterNfcKit.finish(iosErrorMessage: "Try again");
-          }
+        if (tag != null) {
+          if (tag.type == NFCTagType.mifare_ultralight) {
+            List<ndef.NDEFRecord>? ndefRecords;
+            try {
+              ndefRecords = await FlutterNfcKit.readNDEFRecords();
+            } on Exception catch (error) {
+              await FlutterNfcKit.finish(iosErrorMessage: 'Error, $error');
+            }
+            try {
+              ndefRecord = ndefRecords!.first;
+            } on Exception catch (error) {
+              await FlutterNfcKit.finish(iosErrorMessage: "Try again");
+            }
 
-          if (ndefRecord != null) {
-            final decodedNdefRecord = ndef.decodePartialNdefMessage(
-                ndef.TypeNameFormat.nfcWellKnown,
-                ndefRecord.type!,
-                ndefRecord.payload!);
+            if (ndefRecord != null) {
+              final decodedNdefRecord = ndef.decodePartialNdefMessage(
+                  ndef.TypeNameFormat.nfcWellKnown,
+                  ndefRecord.type!,
+                  ndefRecord.payload!);
 
-            final nfcId = split(decodedNdefRecord.toString(), '=').last;
-            final loadedNfcData = await fetchNfcData(nfcId);
-            if (loadedNfcData != null) {
-              if (loadedNfcData.id == nfcData.id) {
-                final success = await stopNfcInWork(nfcData.id);
-                if (success == true) {
-                  await FlutterNfcKit.finish(iosAlertMessage: "Готово");
+              final nfcId = split(decodedNdefRecord.toString(), '=').last;
+              final loadedNfcData = await getNfcInfo(nfcId);
+              if (loadedNfcData != null) {
+                if (loadedNfcData.id == nfcData.id) {
+                  final success = await stopNfcInWork(nfcData.id);
+                  if (success == true) {
+                    await FlutterNfcKit.finish(iosAlertMessage: "Готово");
 
-                  Navigator.pushReplacement(context,
-                      MaterialPageRoute(builder: (context) => MyHomePage()));
+                    Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => TabBarScreen(null)),
+                        (route) => false);
+                    context.showSnackBar(
+                        message: 'Вы успешно завершили работу');
+                  } else {
+                    await FlutterNfcKit.finish(
+                        iosErrorMessage: "Ошибка, Попробуйте еще раз");
+                  }
                 } else {
                   await FlutterNfcKit.finish(
-                      iosErrorMessage: "Ошибка, Попробуйте еще раз");
+                      iosErrorMessage: "Ошибка, Неправильный тэг");
                 }
               } else {
                 await FlutterNfcKit.finish(
-                    iosErrorMessage: "Ошибка, Неправильный тэг");
+                    iosErrorMessage:
+                        "Ошибка загрузки данных для этой NFC метки");
               }
             } else {
               await FlutterNfcKit.finish(
-                  iosErrorMessage: "Ошибка загрузки данных для этой NFC метки");
+                  iosErrorMessage: "Невозможно получить id для NFC метки");
             }
-          } else {
-            await FlutterNfcKit.finish(
-                iosErrorMessage: "Невозможно получить id для NFC метки");
           }
         }
+      } else {
+        displayDialogOKCallBack(context, "Ошибка",
+            "Ваше устройство не поддерживает работу с NFC :(, воспользуйтесь QR сканером");
       }
-    } else {
-      displayDialogOKCallBack(
-          context, "Ошибка", "Ваше устройство не поддерживает работу с NFC :(");
     }
   }
 
@@ -107,51 +138,21 @@ class MyHomePageWithData extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(
+          title: const Text(
             'Вы пытаетесь завершить работу',
           ),
-          content: Text(
-              "Проверьте рабочее место, все должно быть на месте, а так же в хорошем состоянии."),
-          actions: <Widget>[
-            TextButton(
-                child: new Text("Завершить работу"),
-                onPressed: () {
-                  QRorNFC(context);
-                }),
-            TextButton(
-              child: new Text("Отменить"),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Future<void> QRorNFC(BuildContext context) async {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Выберите способ завершения работы'),
           content: const Text(
-              "Доступно завершение через NFC метку или QR код, находящимся на вашем рабочем месте"),
+              'Проверьте рабочее место, если вы что-то брали удостоверьтесь что вернули администратору'),
           actions: <Widget>[
             TextButton(
-                child: const Text("Завершить работу через NFC"),
+                child: const Text("Завершить работу"),
                 onPressed: () {
                   returnNfc(context);
                 }),
             TextButton(
-              child: const Text("Завершить работу через QR"),
+              child: const Text("Отменить"),
               onPressed: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const QRViewExample(
-                    isEnd: true,
-                  ),
-                ));
+                Navigator.of(context).pop();
               },
             ),
           ],
@@ -183,84 +184,68 @@ class MyHomePageWithData extends StatelessWidget {
     );
   }
 
+  Future<bool> _isRealDevice() async {
+    return await SafeDevice.isRealDevice;
+  }
+
+  String get _simulatorNfcId => '90001441-a4d9-43bb-af77-bbdb50c415c2';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: NavDrawer(
-        nfcData: nfcData,
-      ),
-      appBar: AppBar(
-        title: const Text(
-          "SOSRM-HSE",
-          style: TextStyle(
-              color: Colors.white, fontStyle: FontStyle.normal, fontSize: 25.0),
-        ),
-        backgroundColor: Colors.orange,
-      ),
       body: Center(
-          child: ListView(
+          child: Column(
         children: [
-          Container(
-            child: GestureDetector(
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (_) {
-                  return DetailScreen(photo: Image.network(nfcData.image));
-                }));
-              },
-              child: Container(child: Image.network(nfcData.image)),
-            ),
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) {
+                    return DetailScreen(photo: Image.network(nfcData.image));
+                  },
+                ),
+              );
+            },
+            child: Image.network(nfcData.image),
           ),
           Container(
             padding: const EdgeInsets.only(left: 30, top: 20, right: 30),
             child: Text(
-              '${nfcData.name}\n\Рабочее место №: ${nfcData.roomNum.toString()}\n\nДоступно для взятия в работу:',
+              '${nfcData.name}\n\Рабочее место №: ${nfcData.roomNum.toString()}\n\nНа данном рабочем месте есть возможность взять в работу:',
               style: const TextStyle(
                   color: Colors.black,
                   fontStyle: FontStyle.normal,
                   fontSize: 20.0),
             ),
           ),
-          Container(
-            padding: const EdgeInsets.only(left: 30, top: 10, right: 30),
-            child: Text(
-              nfcData.items,
-              style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                  fontStyle: FontStyle.normal,
-                  fontSize: 15.0),
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.only(left: 30, top: 20, right: 30),
-            child: Text(
-              'Узнать подробнее или взять можно у администратора на комьюнити-баре',
-              style: const TextStyle(
-                  color: Colors.black,
-                  fontStyle: FontStyle.normal,
-                  fontSize: 20.0),
+          Column(
+            children: List.generate(
+              nfcData.instrument.length,
+              (index) => InstrumentView(
+                instrument: nfcData.instrument[index],
+                onTap: (instrument) => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        InstrumentsDetailScreen(instrument: instrument),
+                  ),
+                ),
+              ),
             ),
           ),
           const SizedBox(height: 15),
-          Container(
-              padding: const EdgeInsets.only(left: 40, right: 40),
-              height: 43,
-              child: ElevatedButton.icon(
-                icon: const Icon(
-                  Icons.remove_circle_outline,
-                  color: Colors.white,
-                ),
-                onPressed: () async {
-                  isReadyToReturn(context);
-                },
-                label: const Text(
-                  "Закончить работу",
-                  style: TextStyle(fontSize: 16, color: Colors.white),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
-                ),
-              )),
+          ElevatedButton(
+            onPressed: () async {
+              isReadyToReturn(context);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.black,
+            ),
+            child: const Text(
+              "Завершить работу",
+              style: TextStyle(fontSize: 16, color: Colors.white),
+            ),
+          ),
         ],
       )),
     );

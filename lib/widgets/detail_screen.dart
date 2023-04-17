@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/ui_components/custom_app_bar.dart';
 
 class DetailScreen extends StatelessWidget {
   final Image photo;
@@ -9,14 +10,7 @@ class DetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: AppBar(
-        title: const Text(
-          "Просмотр фото",
-          style: TextStyle(
-              color: Colors.white, fontStyle: FontStyle.normal, fontSize: 25.0),
-        ),
-        backgroundColor: Colors.orange,
-      ),
+      appBar: CustomAppBar(title: 'Просмотр фото'),
       body: InteractiveViewer(
           maxScale: 8,
           child: Center(

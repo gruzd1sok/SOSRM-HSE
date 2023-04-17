@@ -1,6 +1,7 @@
 PODS:
   - app_links (0.0.1):
     - Flutter
+  - DTTJailbreakDetection (0.4.0)
   - Flutter (1.0.0)
   - flutter_nfc_kit (2.0.0):
     - Flutter
@@ -14,6 +15,9 @@ PODS:
   - qr_code_scanner (0.2.0):
     - Flutter
     - MTBBarcodeScanner
+  - safe_device (1.0.0):
+    - DTTJailbreakDetection
+    - Flutter
   - shared_preferences_ios (0.0.1):
     - Flutter
   - url_launcher_ios (0.0.1):
@@ -27,11 +31,13 @@ DEPENDENCIES:
   - native_shared_preferences (from `.symlinks/plugins/native_shared_preferences/ios`)
   - path_provider_ios (from `.symlinks/plugins/path_provider_ios/ios`)
   - qr_code_scanner (from `.symlinks/plugins/qr_code_scanner/ios`)
+  - safe_device (from `.symlinks/plugins/safe_device/ios`)
   - shared_preferences_ios (from `.symlinks/plugins/shared_preferences_ios/ios`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
 
 SPEC REPOS:
   trunk:
+    - DTTJailbreakDetection
     - MTBBarcodeScanner
 
 EXTERNAL SOURCES:
@@ -49,6 +55,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/path_provider_ios/ios"
   qr_code_scanner:
     :path: ".symlinks/plugins/qr_code_scanner/ios"
+  safe_device:
+    :path: ".symlinks/plugins/safe_device/ios"
   shared_preferences_ios:
     :path: ".symlinks/plugins/shared_preferences_ios/ios"
   url_launcher_ios:
@@ -56,6 +64,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   app_links: ab4ba54d10a13d45825336bc9707b5eadee81191
+  DTTJailbreakDetection: 5e356c5badc17995f65a83ed9483f787a0057b71
   Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
   flutter_nfc_kit: 965c98c3fa68f5609f1cc89abb968fe1b8ffdbaa
   image_picker_ios: b786a5dcf033a8336a657191401bfdf12017dabb
@@ -63,9 +72,10 @@ SPEC CHECKSUMS:
   native_shared_preferences: 21a805f6149643c25a20a4f534692131faebadfe
   path_provider_ios: 14f3d2fd28c4fdb42f44e0f751d12861c43cee02
   qr_code_scanner: bb67d64904c3b9658ada8c402e8b4d406d5d796e
+  safe_device: 4539eb6bdbeb4b61a763a51c4e73e6b37dea4e3d
   shared_preferences_ios: 548a61f8053b9b8a49ac19c1ffbc8b92c50d68ad
   url_launcher_ios: 839c58cdb4279282219f5e248c3321761ff3c4de
 
 PODFILE CHECKSUM: cc1f88378b4bfcf93a6ce00d2c587857c6008d3b
 
-COCOAPODS: 1.11.2
+COCOAPODS: 1.11.3

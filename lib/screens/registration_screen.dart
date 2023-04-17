@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/screens/tab_bar_screen.dart';
+import 'package:my_app/ui_components/custom_app_bar.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '/constants.dart';
 import 'package:native_shared_preferences/native_shared_preferences.dart';
-import 'network.dart';
-import 'home_page.dart';
-import 'home_page_data.dart';
+import '../network_layer/network.dart';
 
-class RegistrationPage extends StatefulWidget {
-  const RegistrationPage({super.key});
+class RegistrationScreen extends StatefulWidget {
+  const RegistrationScreen({super.key});
 
   @override
-  _RegistrationPageState createState() => _RegistrationPageState();
+  _RegistrationScreenState createState() => _RegistrationScreenState();
 }
 
-class _RegistrationPageState extends State<RegistrationPage> {
+class _RegistrationScreenState extends State<RegistrationScreen> {
   final _nameController = TextEditingController();
   final _surnameController = TextEditingController();
   final _groupController = TextEditingController();
@@ -23,18 +23,13 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
   openScreen() async {
     final nfcData = await fetchActiveNfc();
-    if (nfcData == null) {
-      return const MyHomePage();
-    } else {
-      return MyHomePageWithData(nfcData: nfcData);
-    }
+    return TabBarScreen(nfcData);
   }
 
   _saveUserId(String id) async {
     NativeSharedPreferences prefs = await NativeSharedPreferences.getInstance();
     const key = 'userId';
     prefs.setString(key, id);
-    print('set userId - $id');
   }
 
   /// Called once a user id is received within `onAuthenticated()`
@@ -63,7 +58,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
         _phoneController.text = (data['phone'] ?? '') as String;
       } else {
         Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => screen));
+          context,
+          MaterialPageRoute(builder: (context) => screen),
+        );
       }
     }
     setState(() {
@@ -94,7 +91,12 @@ class _RegistrationPageState extends State<RegistrationPage> {
       await supabase.from('profiles').upsert(updates);
       if (mounted) {
         context.showSnackBar(message: 'Регистрация завершена!');
-        Navigator.pushReplacementNamed(context, '/home');
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => TabBarScreen(null),
+          ),
+        );
       }
     } on PostgrestException catch (error) {
       context.showErrorSnackBar(message: error.message);
@@ -104,19 +106,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
     setState(() {
       _loading = false;
     });
-  }
-
-  Future<void> _signOut() async {
-    try {
-      await supabase.auth.signOut();
-    } on AuthException catch (error) {
-      context.showErrorSnackBar(message: error.message);
-    } catch (error) {
-      context.showErrorSnackBar(message: 'Unexpected error occured');
-    }
-    if (mounted) {
-      Navigator.of(context).pushReplacementNamed('/');
-    }
   }
 
   @override
@@ -141,16 +130,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
             body: Center(child: CircularProgressIndicator()),
           )
         : Scaffold(
-            appBar: AppBar(
-              title: const Text(
-                "Регистрация",
-                style: TextStyle(
-                    color: Colors.white,
-                    fontStyle: FontStyle.normal,
-                    fontSize: 25.0),
-              ),
-              backgroundColor: Colors.orange,
-            ),
+            appBar: CustomAppBar(title: 'Регистрация'),
             body: ListView(
               padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
               children: [
@@ -171,11 +151,11 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 const SizedBox(height: 18),
                 ElevatedButton(
                   onPressed: _updateProfile,
+                  style:
+                      ElevatedButton.styleFrom(backgroundColor: Colors.black),
                   child: Text(
                       _loading ? 'Сохранение...' : 'Завершить регистрацию'),
                 ),
-                const SizedBox(height: 18),
-                TextButton(onPressed: _signOut, child: const Text('Выйти')),
               ],
             ),
           );

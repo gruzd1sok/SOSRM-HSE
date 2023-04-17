@@ -1,12 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:my_app/screens/splash_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'pages/account_page.dart';
-import 'pages/login_page.dart';
-import 'pages/splash_page.dart';
-import 'pages/home_page.dart';
-import 'pages/registration_page.dart';
-import 'pages/instruments_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,7 +14,7 @@ void main() async {
 
   SystemChrome.setPreferredOrientations(
       [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]).then((_) {
-    runApp(new MyApp());
+    runApp(const MyApp());
   });
 }
 
@@ -29,27 +24,24 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Supabase Flutter',
+      title: 'Flutter',
       theme: ThemeData.light().copyWith(
-        primaryColor: Colors.orange,
+        primaryColor: Colors.grey,
         textButtonTheme: TextButtonThemeData(
           style: TextButton.styleFrom(
-            foregroundColor: Colors.orange,
+            foregroundColor: Colors.grey,
           ),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             foregroundColor: Colors.white,
-            backgroundColor: Colors.orange,
+            backgroundColor: Colors.black,
           ),
         ),
       ),
       initialRoute: '/',
-      routes: <String, WidgetBuilder>{
-        '/': (_) => const SplashPage(),
-        '/login': (_) => const LoginPage(),
-        '/home': (_) => const MyHomePage(),
-        '/registration': (_) => const RegistrationPage(),
+      routes: {
+        '/': (_) => const SplashScreen(),
       },
     );
   }

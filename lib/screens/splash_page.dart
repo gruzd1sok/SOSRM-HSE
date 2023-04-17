@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:my_app/pages/home_page.dart';
-import 'package:my_app/pages/home_page_data.dart';
+import 'package:my_app/screens/login_screen.dart';
+import 'package:my_app/screens/tab_bar_screen.dart';
 import '../constants.dart';
-import 'network.dart';
+import '../network_layer/network.dart';
 
-class SplashPage extends StatefulWidget {
-  const SplashPage({super.key});
+class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
 
   @override
-  _SplashPageState createState() => _SplashPageState();
+  _SplashScreenState createState() => _SplashScreenState();
 }
 
-class _SplashPageState extends State<SplashPage> {
+class _SplashScreenState extends State<SplashScreen> {
   bool _redicrectCalled = false;
   @override
   void didChangeDependencies() {
@@ -21,11 +21,7 @@ class _SplashPageState extends State<SplashPage> {
 
   openScreen() async {
     final nfcData = await fetchActiveNfc();
-    if (nfcData == null) {
-      return const MyHomePage();
-    } else {
-      return MyHomePageWithData(nfcData: nfcData);
-    }
+    return TabBarScreen(nfcData);
   }
 
   Future<void> _redirect() async {
@@ -40,10 +36,16 @@ class _SplashPageState extends State<SplashPage> {
       final screen = await openScreen();
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => screen),
+        MaterialPageRoute(
+          builder: (context) => screen,
+        ),
       );
     } else {
-      Navigator.of(context).pushReplacementNamed('/login');
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => LoginScreen(),
+        ),
+      );
     }
   }
 

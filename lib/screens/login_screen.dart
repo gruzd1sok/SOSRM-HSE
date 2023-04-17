@@ -2,18 +2,20 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:my_app/screens/registration_screen.dart';
+import 'package:my_app/ui_components/custom_app_bar.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '/constants.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
 
   @override
-  _LoginPageState createState() => _LoginPageState();
+  _LoginScreenState createState() => _LoginScreenState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginScreenState extends State<LoginScreen> {
   bool _isLoading = false;
   bool _redirecting = false;
   late final TextEditingController _emailController;
@@ -77,7 +79,11 @@ class _LoginPageState extends State<LoginPage> {
       final session = data.session;
       if (session != null) {
         _redirecting = true;
-        Navigator.of(context).pushReplacementNamed('/registration');
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => RegistrationScreen(),
+          ),
+        );
       }
     });
     super.initState();
@@ -93,18 +99,16 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          "Авторизация",
-          style: TextStyle(
-              color: Colors.white, fontStyle: FontStyle.normal, fontSize: 25.0),
-        ),
-        backgroundColor: Colors.orange,
-      ),
+      appBar: CustomAppBar(title: 'Авторизация'),
       body: ListView(
         padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
         children: [
-          const Text('Введите почту с и зайдите через Magic Link'),
+          const Text(
+            'Введите почту с и зайдите через специальную ссылку для входа',
+            style: TextStyle(
+              fontSize: 16,
+            ),
+          ),
           const SizedBox(height: 18),
           TextFormField(
             controller: _emailController,
@@ -112,9 +116,10 @@ class _LoginPageState extends State<LoginPage> {
           ),
           const SizedBox(height: 18),
           ElevatedButton(
-            onPressed: _isLoading ? null : _signIn,
-            child: Text(_isLoading ? 'Загрузка' : 'Отправить Magic Link'),
-          ),
+              onPressed: _isLoading ? null : _signIn,
+              child:
+                  Text(_isLoading ? 'Загрузка' : 'Отправить ссылку для входа'),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.black)),
         ],
       ),
     );
